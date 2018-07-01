@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Contabilidad;
 use App\Detalle;
 use App\Factura;
+use App\Log;
 use App\Mesa;
 use App\Producto;
 use App\Receta;
 use App\Unidad;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FacturasController extends Controller
 {
@@ -22,6 +24,12 @@ class FacturasController extends Controller
         $contabiliad = Contabilidad::where('fecha', date('Y-m-d'))->get();
         if(count($contabiliad) == 0){
             abort(410);
+        }
+        $contabiliad = Contabilidad::where('fecha', date('Y-m-d'))->get()->first();
+        if($contabiliad){
+            if($contabiliad->abierto == 0){
+                abort(404);
+            }
         }
     }
 
@@ -125,6 +133,40 @@ class FacturasController extends Controller
             $rtAjax['error'] = $e . '';
         }
         return $rtAjax;
+
+    }
+
+    public function eliminarProducto(Request $request){
+        $input = $request->all();
+        $rtAjax = [
+            'ok' => true,
+            'error' => ''
+        ];
+        try{
+            $factura = Factura::find($input['id_factura']);
+
+            $detalle = Detalle::where([
+                ['id_factura', $factura->id],
+                ['id_producto', $input['id_producto']]
+            ])->get()->first();
+
+            $costo = $detalle->cantidad * $detalle->producto->precio;
+            $factura->total = $factura->total - $costo;
+            $factura->save();
+            $detalle->delete();
+            $log = Log::create([
+                'id_usuario' => Auth::user()->id,
+                'accion' => 'Eliminar Producto de pedido',
+                'expl' => $input['expl'],
+            ]);
+            return $rtAjax;
+        }
+        catch(\Exception $e){
+            $rtAjax['ok'] = false;
+            $rtAjax['error'] = $e . '';
+        }
+        return $rtAjax;
+
 
     }
 

@@ -35,6 +35,7 @@
                             <th>Cantidad</th>
                             <th>Valor Unidad</th>
                             <th>Valor</th>
+                            <th>Eliminar</th>
                         </tr>
                         @foreach($detalles as $detalle)
                         <tr>
@@ -44,6 +45,9 @@
                             <td>{{$detalle->producto->precio}}</td>
 
                             <td>{{$detalle->cantidad * $detalle->producto->precio}}</td>
+                            <td>
+                                <a href="#" class="btn btn-danger eliminarProd" miVlr="{{$detalle->producto->id}}">Eliminar</a>
+                            </td>
                         </tr>
                         @endforeach
                     </table>
@@ -159,6 +163,42 @@
             });
         });
 
+        $(".eliminarProd").on('click',function () {
+            var id_producto = $(this).attr('miVlr');
+            var exp = explicacion();
+            if(exp == "cancel"){
+                return;
+            }
+            $.ajax({
+                url: $('#urlAct').html() + '/eliminar_producto',
+                type: 'post',
+                data: {
+                    id_factura : $('#id_factura').val(),
+                    id_producto :  id_producto,
+                    expl: exp,
+                    _token : $('meta[name="csrf-token"]').attr('content')
+                },
+                success:function(respuesta) {
+                    if (respuesta.ok) {
+                        location.reload();
+                    } else {
+                        alert('uy algo no salió bien' + respuesta.error);
+                    }
+
+                }
+            });
+        });
+
+        function explicacion() {
+            var txt;
+            var person = prompt("¿Estas seguro eliminar el producto? Explica porque elimina producto del pedio.", "");
+            if (person == null || person == "") {
+                return "cancel";
+            } else {
+                return person;
+            }
+
+        }
 
     </script>
 

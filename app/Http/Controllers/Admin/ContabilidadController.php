@@ -43,11 +43,27 @@ class ContabilidadController extends Controller
             'total' => 0.00,
             'dinero_base' => $input['valor'],
             'abierto' => true,
+            'gastos' => 0.00,
+            'ventas' => 0.00
         ]);
         return redirect()->route('caja');
     }
 
     public function cerrar_caja(){
+        $caja = Contabilidad::where('abierto', 1)->get()->first();
+        $facturas = Factura::where('fecha', date('Y-m-d'))->get();
+        $ventas = 0.00;
+        $test = rand(60000, 180000);
+        $test = (double) $test;
+        $gastos = $test;
+        foreach ($facturas as $factura){
+            $ventas += $factura->total;
+        }
+        $caja->ventas = $ventas;
+        $caja->gastos = $gastos;
+        $caja->total = $ventas + $caja->dinero_base - $gastos;
+        $caja->abierto = 0;
+        $caja->save();
         return 'cerré caja';
     }
 

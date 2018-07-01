@@ -18,6 +18,7 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::get('/caja', 'FacturasController@mesas')->name('caja');
 Route::get('/caja/mesa/{id}', 'FacturasController@abrirFactura')->name('factura');
 Route::post('/agregar_producto', 'FacturasController@agregarProducto')->name('agregar-producto');
+Route::post('/eliminar_producto', 'FacturasController@eliminarProducto')->name('eliminar-producto');
 Route::post('/caja/mesa/{id}', 'FacturasController@pagar')->name('pagar');
 Route::get('/facturas', 'FacturasController@index')->name('facturas');
 Route::get('/facturas/{id}', 'FacturasController@show')->name('ver_factura');

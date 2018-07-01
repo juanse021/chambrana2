@@ -8,13 +8,7 @@
 			<div class="col-md-8">
 				<div class="card">
 					<div class="card-header">
-						<h1>Facturas</h1>
-						<a>
-							<button class="btn btn-primary">
-								<i class="glyphicon glyphicon-zoom-in"></i>
-								Agregar Nuevo Producto
-							</button>
-						</a>
+						<h1>Inventario</h1>
 						<table id="example" class="display" style="width:100%">
 							<thead>
 							<tr>
@@ -22,7 +16,7 @@
 								<th>Nombre</th>
 								<th>Tipo</th>
 								<th>Cantidad</th>
-								<th>Ver</th>
+
 							</tr>
 							</thead>
 							<tbody>
@@ -32,12 +26,6 @@
 									<td>{{$ingrediente->nombre}}</td>
 									<td>{{$ingrediente->tipo}}</td>
 									<td>{{$ingrediente->cantidad()}}</td>
-									<td><a href="{{route('ver_factura', $ingrediente->id)}}">
-											<button>
-												<i class="glyphicon glyphicon-zoom-in"></i>
-											</button>
-										</a>
-									</td>
 								</tr>
 							@endforeach
 							</tbody>
@@ -47,7 +35,6 @@
 								<th>Fecha</th>
 								<th>Total</th>
 								<th>Mesa</th>
-								<th>Ver</th>
 							</tr>
 							</tfoot>
 						</table>

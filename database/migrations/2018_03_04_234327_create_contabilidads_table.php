@@ -19,6 +19,8 @@ class CreateContabilidadsTable extends Migration
             $table->double('total', '20', '2');
             $table->boolean('abierto')->default(true);
             $table->double('dinero_base','20', '2');
+            $table->double('gastos', '20', '2');
+            $table->double('ventas', '20', '2');
             $table->timestamps();
         });
     }
