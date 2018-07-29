@@ -16,13 +16,13 @@
 
                     <ol>
                     @if (Auth::user()->role == 'admin')
-                        <li><a href="{{route('caja')}}">Caja</a></li>
-                        <li><a href="{{route('facturas')}}">Facturacion</a></li>
-                        <li><a href="{{route('inventario.index')}}">Inventario</a></li>
-                        <li><a href="#">Contabilidad</a></li>
-                            <li ><a  href="{{route('contabilidad.index')}}">Gastos</a></li>
+                            <li><a href="{{route('caja')}}">Caja</a></li>
+                            <li><a href="{{route('facturas')}}">Facturacion</a></li>
+                            <li><a href="{{route('inventario.index')}}">Inventario</a></li>
+                            <li><a href="#">Contabilidad</a></li>
+                            <li ><a  href="{{route('receta.create')}}">Nuevo Producto</a></li>
                     @else
-                        <li><a href="#">Caja</a></li>
+                        <li><a href="{{route('caja')}}">Caja</a></li>
                     @endif
                     </ol>
 

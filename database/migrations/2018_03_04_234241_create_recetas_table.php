@@ -34,5 +34,7 @@ class CreateRecetasTable extends Migration
             $table->dropForeign(['id_producto']);
             $table->dropForeign(['id_ingrediente']);
         });
+
+        Schema::dropIfExists('recetas');
     }
 }

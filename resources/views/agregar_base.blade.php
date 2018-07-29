@@ -35,7 +35,7 @@
                                 <label  for="email" class="col-sm-4 col-form-label text-md-right">Valor</label>
 
                                 <div class="col-md-6">
-                                    <input id="valor" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="valor"  required autofocus>
+                                    <input id="valor" type="number" min="0" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="valor"  required autofocus>
 
                                     @if ($errors->has('valor'))
                                         <span class="invalid-feedback">

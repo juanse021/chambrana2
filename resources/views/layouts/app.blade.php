@@ -68,9 +68,9 @@
                                 <li ><a class="nav-link" href="{{route('facturas')}}">Facturacion</a></li>
                                 <li><a class="nav-link" href="{{route('inventario.index')}}">Inventario</a></li>
                                 <li ><a class="nav-link" href="{{route('contabilidad.index')}}">Contabilidad</a></li>
-                                <li ><a class="nav-link" href="#">Gastos</a></li>
+                                <li ><a class="nav-link" href="{{route('receta.create')}}">Nuevo Producto</a></li>
                             @else
-                                <li ><a class="nav-link" href="#">Caja</a></li>
+                                <li ><a class="nav-link" href="{{route('caja')}}">Caja</a></li>
                             @endif
                         @endguest
                     </ul>

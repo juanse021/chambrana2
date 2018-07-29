@@ -28,7 +28,7 @@
 
                     <h2>PRODUCTOS</h2>
 
-                    <table>
+                    <table id="productos">
                         <tr>
                             <th>Referencia</th>
                             <th>Nombre</th>
@@ -81,7 +81,7 @@
                             </div>
                             <hr>
 
-                        <form method="POST" action="{{ route('pagar', $factura->id) }}">
+                        <form method="POST" id="form" action="{{ route('pagar', $factura->id) }}">
                             @csrf
                             <div class="form-group row">
                                 <label disabled for="email" class="col-sm-4 col-form-label text-md-right">Referencia</label>
@@ -118,12 +118,20 @@
                                 </div>
                             </div>
 
+                            @if(Auth::user()->role == "admin")
 
                             <div class="form-group row mb-0">
                                 <div class="col-md-8 offset-md-4">
-                                    <button type="submit" class="btn btn-primary">
+                                    <input type="checkbox" name="permiso" value="true" > Consumo administrador
+                                </div>
+                            </div>
+                            @endif
+
+                            <div class="form-group row mb-0">
+                                <div class="col-md-8 offset-md-4">
+                                    <div id="pagar" class="btn btn-primary">
                                         Pagar
-                                    </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -138,6 +146,15 @@
     <script>
         $(document).ready(function() {
             $('.js-example-basic-single').select2();
+        });
+
+        $('#pagar').on('click', function(){
+            if(document.getElementById("productos").rows.length > 1){
+                $("#form").submit();
+            }
+            else{
+                alert("Necesita agregar producto a la facturar para poder pagar");
+            }
         });
 
         $(".agregar").on('click',function () {

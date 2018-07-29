@@ -15,6 +15,8 @@ Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
 
+
+
 Route::get('/caja', 'FacturasController@mesas')->name('caja');
 Route::get('/caja/mesa/{id}', 'FacturasController@abrirFactura')->name('factura');
 Route::post('/agregar_producto', 'FacturasController@agregarProducto')->name('agregar-producto');
@@ -30,3 +32,5 @@ Route::resource('contabilidad', 'Admin\ContabilidadController');
 
 //Administrativas
 Route::resource('inventario', 'Admin\InventarioController');
+Route::resource('receta', 'recetaCtrl');
+Route::get('/ver_caja/{id}', 'Admin\ContabilidadController@vercaja')->name('ver_caja');

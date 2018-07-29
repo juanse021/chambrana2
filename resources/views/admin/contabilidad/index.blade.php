@@ -20,11 +20,16 @@
                             <tbody>
                                 <tr>
                                     <td>1</td>
+                                    <td>Dinero Base</td>
+                                    <td> + {{$total_caja}}</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
                                     <td>Ventas de facturas</td>
                                     <td> + {{$total_factura}}</td>
                                 </tr>
                                 <tr>
-                                    <td>2</td>
+                                    <td>3</td>
                                     <td>Gastos</td>
                                     <td> - {{$total_gastos}}</td>
                                 </tr>

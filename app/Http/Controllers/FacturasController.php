@@ -20,6 +20,7 @@ class FacturasController extends Controller
 
     public function __construct()
     {
+
         $now = Carbon::now();
         $contabiliad = Contabilidad::where('fecha', date('Y-m-d'))->get();
         if(count($contabiliad) == 0){
@@ -28,14 +29,17 @@ class FacturasController extends Controller
         $contabiliad = Contabilidad::where('fecha', date('Y-m-d'))->get()->first();
         if($contabiliad){
             if($contabiliad->abierto == 0){
-                abort(404);
+                //abort(410);
+                $contabiliad->abierto = 1;
+                $contabiliad->save();
             }
         }
+
     }
 
 
     public function index(){
-        $facturas = Factura::all();
+        $facturas = Factura::where('esta_pago', 1)->get();
         return view('facturas')->with(
             [
                 'facturas' => $facturas
@@ -173,27 +177,43 @@ class FacturasController extends Controller
     public function pagar($id, Request $request){
         $factura = Factura::findOrFail($id);
         $productos = $factura->detalle;
-        foreach ($productos as $producto){
-            $ingredientes = $producto->producto->ingredientes;
-            foreach ($ingredientes as $ingrediente){
-                $unidades = $ingrediente->unidades;
-                $receta = Receta::where([
-                    ['id_producto', $producto->producto->id],
-                    ['id_ingrediente', $ingrediente->id]
-                ])->get()->first();
-                if(count($unidades) > 0){
-                    $unidades[0]->cantidad -= (int) $receta->cantidad;
-                    $unidades[0]->save();
-                    if($unidades[0]->cantidad <= 0){
-                        $unidad_eliminar = Unidad::find($unidades[0]->id);
-                        $unidad_eliminar->delete();
+
+        $input = $request->all();
+
+            foreach ($productos as $producto){
+                $cant = $producto->cantidad;
+                for ($i = 0; $i < $cant; $i++) {
+                    $ingredientes = $producto->producto->ingredientes;
+                    foreach ($ingredientes as $ingrediente) {
+                        $unidades = $ingrediente->unidades;
+                        $receta = Receta::where([
+                            ['id_producto', $producto->producto->id],
+                            ['id_ingrediente', $ingrediente->id]
+                        ])->get()->first();
+                        if (count($unidades) > 0) {
+                            $unidades[0]->cantidad -= (int)$receta->cantidad;
+                            $unidades[0]->save();
+                            if ($unidades[0]->cantidad <= 0) {
+                                $unidad_eliminar = Unidad::find($unidades[0]->id);
+                                $unidad_eliminar->delete();
+                            }
+                        }
+
                     }
                 }
+            }
 
+        $permiso = $request->get('permiso');
+        if(!is_null($permiso)){
+            if($permiso){
+                $factura->delete();
+                return redirect()->route('caja');
             }
         }
-        $factura->esta_pago = 1;
-        $factura->save();
+
+            $factura->esta_pago = 1;
+            $factura->save();
+
         return redirect()->route('caja');
     }
 }
