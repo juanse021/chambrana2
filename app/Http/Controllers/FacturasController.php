@@ -13,6 +13,7 @@ use App\Unidad;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FacturasController extends Controller
 {
@@ -105,11 +106,29 @@ class FacturasController extends Controller
             'error' => ''
         ];
         try{
+            DB::beginTransaction();
             $input = $request->all();
             $factura = Factura::findOrFail($input['id_factura']);
             $producto = Producto::findOrFail($input['producto']);
             $cantidad = (int) $input['cantidad'];
             $ingredientes = $producto->ingredientes;
+            $cant = $producto->cantidad;
+            for ($i = 0; $i < $cantidad; $i++) {
+                foreach ($ingredientes as $ingrediente) {
+                    $unidades = $ingrediente->unidades;
+
+                    $receta = Receta::where([
+                        ['id_producto', $producto->id],
+                        ['id_ingrediente', $ingrediente->id]
+                    ])->get()->first();
+                    if($ingrediente->cantidad() < $cantidad * $receta->cantidad){
+                        $rtAjax['ok'] = false;
+                        $rtAjax['error'] =  'no hay suficiente inventario de ' . $ingrediente->nombre ;
+                        return $rtAjax;
+                    }
+
+                }
+            }
             $i = 0;
             foreach ($ingredientes as $ingrediente){
 
@@ -117,11 +136,7 @@ class FacturasController extends Controller
                     ['id_producto', $producto->id],
                     ['id_ingrediente', $ingrediente->id]
                 ])->get()->first();
-                if($ingrediente->cantidad() - $receta->cantidad <= 0){
-                    $rtAjax['ok'] = false;
-                    $rtAjax['error'] =  'no hay suficiente inventario de ' . $ingrediente->nombre;
-                    return $rtAjax;
-                }
+
             }
             $detalle = Detalle::create([
                 'id_factura' => $factura->id,
@@ -130,7 +145,35 @@ class FacturasController extends Controller
             ]);
             $factura->total += $producto->precio * $cantidad;
             $factura->save();
+
+            $productos = $factura->detalle;
+            foreach ($productos as $producto){
+                $cant = $producto->cantidad;
+                for ($i = 0; $i < $cant; $i++) {
+                    $ingredientes = $producto->producto->ingredientes;
+                    foreach ($ingredientes as $ingrediente) {
+                        $unidades = $ingrediente->unidades;
+                        $contar = 0;
+                        foreach ($unidades as $uni){
+                            $contar += $uni->cantidad;
+                        }
+
+                        $receta = Receta::where([
+                            ['id_producto', $producto->producto->id],
+                            ['id_ingrediente', $ingrediente->id]
+                        ])->get()->first();
+                        if($ingrediente->cantidad() < $cant * $receta->cantidad){
+                            $rtAjax['ok'] = false;
+                            DB::rollBack();
+                            $rtAjax['error'] =  'no hay suficiente inventario de ' . $ingrediente->cantidad() . ' ' . $cant * $receta->cantidad ;
+                            return $rtAjax;
+                        }
+
+                    }
+                }
+            }
             $rtAjax['ok'] = true;
+            DB::commit();
         }
         catch(\Exception $e){
             $rtAjax['ok'] = false;
@@ -179,17 +222,26 @@ class FacturasController extends Controller
         $productos = $factura->detalle;
 
         $input = $request->all();
-
+        DB::beginTransaction();
             foreach ($productos as $producto){
                 $cant = $producto->cantidad;
                 for ($i = 0; $i < $cant; $i++) {
                     $ingredientes = $producto->producto->ingredientes;
                     foreach ($ingredientes as $ingrediente) {
                         $unidades = $ingrediente->unidades;
+                        $contar = 0;
+                        foreach ($unidades as $uni){
+                            $contar += $uni->cantidad;
+                        }
+
                         $receta = Receta::where([
                             ['id_producto', $producto->producto->id],
                             ['id_ingrediente', $ingrediente->id]
                         ])->get()->first();
+                        if($contar < $cant * $receta->cantidad){
+                            DB::rollBack();
+                            return back()->withErrors(['msg' => 'No hay suficiente ' . $ingrediente->nombre]);
+                        }
                         if (count($unidades) > 0) {
                             $unidades[0]->cantidad -= (int)$receta->cantidad;
                             $unidades[0]->save();
@@ -207,13 +259,14 @@ class FacturasController extends Controller
         if(!is_null($permiso)){
             if($permiso){
                 $factura->delete();
+                DB::commit();
                 return redirect()->route('caja');
             }
         }
 
             $factura->esta_pago = 1;
             $factura->save();
-
+        DB::commit();
         return redirect()->route('caja');
     }
 }

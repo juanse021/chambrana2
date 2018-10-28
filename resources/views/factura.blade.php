@@ -27,6 +27,16 @@
                     <div class="card-header"><h1>Factura</h1></div>
 
                     <h2>PRODUCTOS</h2>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
 
                     <table id="productos">
                         <tr>

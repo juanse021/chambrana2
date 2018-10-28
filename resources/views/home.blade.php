@@ -30,5 +30,31 @@
             </div>
         </div>
     </div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Productos de baja inventario</div>
+
+                <div class="card-body">
+                    @if (session('status'))
+                        <div class="alert alert-success">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($ingredientes as $ingrediente)
+                                    @if($ingrediente->cantidad() <= 20)
+                                    <li>{{ $ingrediente->nombre }} - {{ $ingrediente->cantidad() }}</li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
